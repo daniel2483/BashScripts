@@ -1,0 +1,4 @@
+
+dir %USERPROFILE%\Desktop
+
+pause
