@@ -1,0 +1,299 @@
+#!/bin/ksh
+
+##################################################################
+#  Descripcion:                                                  #
+#            Script utilizado para la revision diaria del estado #
+#       del EMM.                                                 #
+# Creado por: Pablo Murillo                                      #
+# Fecha:                                                         #
+# Ultima Actualizacion: 03/11/2011 por Daniel Rodriguez          #
+#                                                                #
+##################################################################
+
+echo ""
+echo "Inicio del Script: "
+date
+echo ""
+echo "############################"
+echo "Estado del CPU"
+echo "############################"
+uptime ; uname -a
+echo "############################"
+echo "Espacio en disco"
+echo "############################"
+df -h
+echo "############################"
+echo "Correo de root"
+echo "############################"
+cd /var/mail
+tail -500 root
+echo "############################"
+echo "Message LOGs"
+echo "############################"
+cd /var/adm
+tail -100 messages
+echo "############################"
+echo "ORACLE LOGs BD BGW"
+echo "############################"
+cd /var/opt/mediation/ora/diag/rdbms/bgw/bgw/trace/ 
+tail -100 alert_bgw.log
+echo "############################"
+echo "ORACLE LOGs BD FMM"
+echo "############################"
+cd /var/opt/mediation/fmmdb/diag/rdbms/fmm/fmm/trace/ 
+tail -100 alert_fmm.log
+echo "############################"
+echo "Rendimiento del procesador "
+echo "############################"
+sar 5 5
+echo "############################"
+echo "Rendimiento del procesador "
+echo "############################"
+vmstat 3 10
+echo "############################"
+echo "Rendimiento de todos los procesadores "
+echo "############################"
+mpstat
+echo "############################"
+echo "File System state "
+echo "############################"
+vxprint
+echo "############################"
+echo "Veritas log file"
+echo "############################"
+cd /var/VRTSvcs/log/
+tail -100 engine_A.log
+echo "############################"
+echo "SYSLOG log file"
+echo "############################"
+cd /var/log
+tail -100 syslog
+echo "############################"
+echo "Check HW"
+echo "############################"
+prtdiag -v
+echo "############################"
+echo "TOMCAT WEB SERVER"
+echo "############################"
+ps -fea | grep -i tomcat
+echo "############################"
+echo "Proceso ORACLE"
+echo "############################"
+ps -fea | grep -i ora
+echo "############################"
+echo "Server status"
+echo "############################"
+hastatus -summary
+echo "############################"
+echo "Solaris Services"
+echo "############################"
+svcs
+echo "############################"
+echo "Server status"
+echo "############################"
+BGwControl status
+echo "############################"
+echo "Directorio INBUFFER"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/CXC1730901_R2H/storage/inbuffer | wc -l
+echo "############################"
+echo "Directorio OUTBUFFER"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/CXC1730901_R2H/storage/outbuffer | wc -l
+echo "############################"
+echo "SWAP Memory"
+echo "############################"
+swap -s
+echo "############################"
+echo "DATE"
+echo "############################"
+date
+echo ""
+echo "############################"
+echo "CDR's encolados en EMM      "
+echo "############################"
+echo "  MSC1: "
+ls /var/opt/BGw/Server1/ICE/APG/MSC1/ | wc -l
+echo "  MSC2: "
+ls /var/opt/BGw/Server1/ICE/APG/MSC2/ | wc -l
+echo "  MSC3: "
+ls /var/opt/BGw/Server1/ICE/APG/MSC3/ | wc -l
+echo "  MSC4: "
+ls /var/opt/BGw/Server1/ICE/APG/MSC4/ | wc -l
+echo "  MSC5: "
+ls /var/opt/BGw/Server1/ICE/APG/MSC5/ | wc -l
+echo ""
+echo "############################"
+echo "Ultimos archivos enviados a GITEL MSC1"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/Rating/"
+cd /var/opt/BGw/Server1/ICE/Rating/
+ls -ltr *MSC1* | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL MSC2"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/Rating/"
+ls -ltr *MSC2* | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL MSC3"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/Rating/"
+ls -ltr *MSC3* | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL MSC4"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/Rating/"
+ls -ltr *MSC4* | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL MSC5"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/Rating/"
+ls -ltr *MSC5* | tail
+echo "############################"
+echo "Ultimos archivos enviados a Roaming MSC1"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/ICE/Roaming/*MSC1* | tail
+echo "############################"
+echo "Ultimos archivos enviados a Roaming MSC2"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/ICE/Roaming/*MSC2* | tail
+echo "############################"
+echo "Ultimos archivos enviados a Roaming MSC3"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/ICE/Roaming/*MSC3* | tail
+echo "############################"
+echo "Ultimos archivos enviados a Roaming MSC4"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/ICE/Roaming/*MSC4* | tail
+echo "############################"
+echo "Ultimos archivos enviados a Roaming MSC5"
+echo "############################"
+ls -ltr /var/opt/BGw/Server1/ICE/Roaming/*MSC5* | tail
+echo "############################"
+echo "Ultimos archivos enviados a SOLT MSC1"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/redfija/"
+cd /var/opt/BGw/Server1/ICE/redfija/
+echo "ICE:"
+ls -ltr *MSC1R13.* | tail
+echo "Teletica:"
+ls -ltr *MSC1R132* | tail
+echo "############################"
+echo "Ultimos archivos enviados a SOLT MSC2"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/redfija/"
+echo "ICE:"
+ls -ltr *MSC2R13.* | tail
+echo "Teletica:"
+ls -ltr *MSC2R132* | tail
+echo "############################"
+echo "Ultimos archivos enviados a SOLT MSC3"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/redfija/"
+echo "ICE:"
+ls -ltr *MSC3R13.* | tail
+echo "Teletica:"
+ls -ltr *MSC3R132* | tail
+echo "############################"
+echo "Ultimos archivos enviados a SOLT MSC4"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/redfija/"
+echo "ICE:"
+ls -ltr *MSC4R13.* | tail
+echo "Teletica:"
+ls -ltr *MSC4R132* | tail
+echo "############################"
+echo "Ultimos archivos enviados a SOLT MSC5"
+echo "############################"
+echo " /var/opt/BGw/Server1/ICE/redfija/"
+echo "ICE:"
+ls -ltr *MSC5R13.* | tail
+echo "Teletica:"
+ls -ltr *MSC5R132* | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL SMS1"
+echo "############################"
+ls -ltr /var/opt/BGw/Server2/ICE/SMS/Kenan/*SMSC1* | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL SMS2"
+echo "############################"
+ls -ltr /var/opt/BGw/Server2/ICE/SMS/Kenan/*SMSC2* | tail
+echo "############################"
+echo "Ultimos archivos enviados a ROAMING GPRS"
+echo "############################"
+ls -ltr /var/opt/BGw/Server2/ICE/GPRS/SGSN/Roaming/Backup/ | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL GPRS NACIONAL"
+echo "############################"
+ls -ltr /var/opt/BGw/Server2/ICE/GPRS/SGSN/Local/Rating/ | tail
+echo "############################"
+echo "Ultimos archivos enviados a GITEL MMS"
+echo "############################"
+ls -ltr /var/opt/BGw/Server2/ICE/MMS/KenanProd/ | tail
+echo "############################"
+echo " Log de script concatenate.bash  /home/bgw/log_concatenar_TELETICA.log"
+echo "############################"
+cat /home/bgw/log_concatenar_TELETICA.log
+echo "############################"
+echo " Ultimos CDR's TELETICA sin concatenar"
+echo "############################"
+ls /var/opt/BGw/ServerGroup2/Server2/TELETICA/tmpScriptConcatenate
+echo "############################"
+echo " Cantidad CDR's TELETICA sin concatenar en el ultimo momento"
+echo "############################"
+ls /var/opt/BGw/ServerGroup2/Server2/TELETICA/tmpScriptConcatenate | wc -l
+echo "###########################"
+echo " Salidas TELETICA          "
+echo "###########################"
+echo "   Gitel:                  "
+echo "    /var/opt/BGw/ServerGroup2/Server2/TELETICA/Gitel/"
+cd /var/opt/BGw/ServerGroup2/Server2/TELETICA/Gitel/
+echo TT.*.EMSC*.BILL  | xargs ls -lrt | tail -10
+echo "   Desc_call_in:           "
+echo "    /var/opt/BGw/ServerGroup2/Server2/TELETICA/Desc_call_in/"
+cd /var/opt/BGw/ServerGroup2/Server2/TELETICA/Desc_call_in/
+echo TT.*.EMSC*.BILL  | xargs ls -lrt | tail -10
+echo "   SmsO:                   "
+echo "    /var/opt/BGw/ServerGroup2/Server2/TELETICA/SmsO/"
+cd /var/opt/BGw/ServerGroup2/Server2/TELETICA/SmsO/
+echo TT.*.EMSC*.BILL  | xargs ls -lrt | tail -10
+echo "   SmsT:                   "
+echo "    /var/opt/BGw/ServerGroup2/Server2/TELETICA/SmsT/"
+cd /var/opt/BGw/ServerGroup2/Server2/TELETICA/SmsT/
+echo TT.*.EMSC*.BILL  | xargs ls -lrt | tail -10
+echo "############################"
+echo " Estadisticas Script: /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/estadisticas_diarias.bash"
+echo "############################"
+echo "  Estadisticas de archivos"
+echo ""
+head /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_estadisticas.txt -1
+tail /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_estadisticas.txt
+echo "  Estadisticas de cantidad de CDR's"
+echo ""
+head -1 /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_estadisticas2.txt
+tail /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_estadisticas2.txt
+echo "############################"
+echo " Estadisticas Script: /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/estadisticas_diariasSOLT.bash"
+echo "############################"
+head /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_estadisticas.txt -1
+tail /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_estadisticas.txt
+echo ""
+echo " Estadisticas archivos concatenados:"
+echo ""
+tail /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_estadisticas2.txt
+echo "############################"
+echo " Carga del Procesador"
+echo "############################"
+w
+echo "############################"
+echo " Routing Table "
+echo "############################"
+netstat -nr
+echo "############################"
+echo " Check Veritas Cluster GUI  "
+echo "############################"
+echo "   /opt/VRTS/bin/hagui &    "
+echo ""
+echo "Fin del Script: "
+date
+echo ""
