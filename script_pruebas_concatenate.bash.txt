@@ -1,0 +1,88 @@
+emmb:/var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script2$ cat concatenate.bash 
+#!/bin/bash
+
+############################################################################
+#   Creador: Jose Daniel Rodriguez Sanchez                                 #
+#   Fecha:   07-09-2011                                                    #
+#   Ultima Actualizacion: 07-09-2011                                       #
+#   Script Utilizado para la concatenacion de archivos que contengan CDR's #
+#   de Teletica                                                            #
+############################################################################
+
+# Declaracion de Variables
+count=0
+limit=$(ls ../files/TT.*.*R132.SOLT | wc -l)  # Obtengo cantidad de CDR's Teletica
+limit2=$(ls ../files/TT.LDUN.*.??????2.SOLT | wc -l)  # Obtengo cantidad de CDR's LDUN Teletica
+limit=5
+
+
+#***********************************************#
+# Muevo archivos TT.LDUN Teletica a carpeta FTP #
+#***********************************************#
+
+echo ""
+echo "Moviendo Archivos LDUN Teletica a salida:"
+echo ""
+if(($limit2>0))
+then
+for ((count=1; count<=$limit2; count++)) # Lazo de lectura de Archivos LDUN
+do
+        orig_file[count]=$(ls -rh ../files/TT.*.*R132.SOLT | tail -1) # Obtengo path relativo y nombre de archivos Teletica y alamaceno en arreglo
+        mv ${orig_file[count]} ./salida/                              # Muevo Archivos LDUN a carpeta salida 
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f3`
+        echo ${orig_file[$count]}
+done
+fi
+
+if(($limit>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos Teletica a temporal:"
+echo ""
+
+for ((count=1; count<=$limit; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh ../files/TT.*.*R132.SOLT | tail -1) # Obtengo path relativo y nombre de archivos Teletica y alamaceno en arreglo 
+        mv ${orig_file[count]} ./tmp                                  # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f3`    # Dejo solamente el nombre del archivo 
+        echo ${orig_file[$count]}       
+done
+
+
+#************************************************************#
+# Concateno Archivos y almaceno en archivo con ultimo nombre #
+#************************************************************#
+
+count=$(($count-1))
+echo ""
+echo "Cantidad de archivos a concatenar: " $count
+echo ""
+echo "Concatenando CDR's Teletica:"
+echo ""
+name=${orig_file[$count]} # Nombro el Archivo con el ultimo archivo procesado
+echo "" 
+echo "Nombre del Archivo Concatenado:" $name
+echo ""
+touch ./salida/$name #Creo el nombre del archivo donde se concatenaran
+chown bgw:med ./salida/* # Modifico propietario
+
+for ((count=1; count<=$limit; count++))    # Lazo de concatenacion de Archivos
+do
+        echo "Concatenando Archivo " $count
+        cat ./tmp/${orig_file[$count]} >> ./salida/$name   # Concateno archivos y lo almaceno en directorio salida
+done
+count=$(($count-1))
+echo ""
+echo "Cantidad de Archivos concatenados:" $count 
+echo ""
+echo "Archivo Concatenado: " ./salida/$name 
+echo ""
+cat ./salida/$name
+mv ./tmp/TT.* ./tmp2/
+fi
+emmb:/var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script2$ 

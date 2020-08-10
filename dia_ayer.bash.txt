@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#################################
+# Script para tomar dia actual  #
+# (dia anterior a correr Script #
+# estadisticas_diarias.bash)    #
+#################################
+
+fecha=$(date '+%d/%m/%y') #Obtengo dia actual 
+date '+%d/%m/%y' > /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/ayer.txt # Almaceno el dia anterior en archivo txt
+echo "Dia guardado en archivo ayer.txt:" $fecha

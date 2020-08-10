@@ -1,0 +1,414 @@
+#!/bin/bash
+
+############################################################################
+#   Creador: Jose Daniel Rodriguez Sanchez                                 #
+#   Fecha:   05-10-2011                                                    #
+#   Ultima Actualizacion: 18-10-2011                                       #
+#   Script Utilizado para la concatenacion de archivos que contengan CDR's #
+#   de Teletica archivos .BILL                                             #
+#   Salidas: SmsO, SmsT, Gitel, y Desc_call_in                             #
+############################################################################
+
+
+
+###############################################################################################
+#                         CDR's Teletica Gitel  .BILL                                         #
+###############################################################################################
+
+# Declaracion de Variables
+count=0
+limit1=$(ls /var/opt/BGw/Server2/TELETICA/tmpGitel2/TT.*.BILL | wc -l)  # Obtengo cantidad de CDR's Teletica Gitel .BILL
+limit2=$(ls /var/opt/BGw/Server2/TELETICA/tmpGitel2/TT.LDUN.*.??????.BILL | wc -l)  # Obtengo cantidad de CDR's LDUN Teletica Gitel .BILL
+
+########################
+#  Echos para pruebas  #
+########################
+
+echo ""
+echo "Inicio del script: " 
+date
+echo ""
+echo "Cantidad de CDR's Gitel: " $limit1
+echo ""
+echo ""
+echo "Cantidad de CDR's LDUN Gitel: " $limit2
+echo ""
+
+#**********************************************************o#
+# Muevo archivos TT.LDUN Gitel .BILL Teletica a carpeta FTP #
+#***********************************************************#
+
+echo ""
+echo "Moviendo Archivos LDUN Gitel .BILL  Teletica a salida:" $limit2
+echo ""
+if(($limit2>0))
+then
+for ((count=1; count<=$limit2; count++)) # Lazo de lectura de Archivos LDUN
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server2/TELETICA/tmpGitel2/TT.LDUN.*.??????.BILL | tail -1) # Obtengo path y nombre de archivos Teletica y alamaceno en arreglo
+        mv ${orig_file[count]} /var/opt/BGw/Server2/TELETICA/salidaGitel/                                 # Muevo Archivos LDUN a carpeta salida 
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f8`
+        echo ${orig_file[$count]} "  Gitel LDUN"
+done
+fi
+
+if(($limit1>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos Gitel .BILL Teletica a temporal:" $limit1
+echo ""
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server2/TELETICA/tmpGitel2/TT.*.BILL | tail -1)  # Obtengo path  y nombre de archivos Teletica y alamaceno en arreglo    
+        mv ${orig_file[count]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel   # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f8`                             # Dejo solamente el nombre del archivo 
+        echo ${orig_file[$count]} "  para Gitel"        
+done
+
+name=${orig_file[$limit1]}
+
+header=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/${orig_file[1]} | head -1) # Obtengo el header del archivo concatenado (1er archivo)
+echo ""
+echo "Header: " $header
+trailer=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/${orig_file[$limit1]} | tail -1) # Obtengo el trailer del archivo concatenado (ultimo archivo)
+echo "Trailer: " $trailer
+cant_cdr=0
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        sed -e '/TRA/d' -e '/HDR/d' /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/${orig_file[$count]} > /var/opt/BGw/Server2/TELETICA/script_concatenateBill//tmpGitel/tmp  # Se elimina Header y Trailer a todos los archivos y se almacena resultado en archivo temporal
+        mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/${orig_file[$count]} # Se crea archivo concatenado sin header ni trailer nombre original del ultimo archivo leido 
+
+done
+
+#cant_cdr=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/TT.* | wc -l) # Se cuenta la cantidad de CDR's dentro del archivo
+
+echo ""
+echo "Cantidad de CDR's a concatenar: " $cant_cdr       
+
+
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/TT.* > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]}
+
+echo ""
+#echo "Archivo concatenado sin header ni trailer: " $name
+#head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/TT.*
+#tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/TT.*
+
+rm /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel/TT.*
+
+touch /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/tmp
+echo "$header" > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/tmp
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]} >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/tmp 
+
+#trailer=$(echo $trailer | cut -d" " -f1)
+#echo ""
+#echo "Contruyendo Trailer:" $trailer   " CDR's: " $cant_cdr "Ericsson EMM"
+echo "$trailer" >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/tmp # $cant_cdr""Ericsson EMM"  >> ../tmpGitel2/tmp
+
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]}
+
+echo "Nuevo Archivo Concatenado: "
+head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]} 
+tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]} 
+
+cp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel3/
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/salidaGitel/
+
+
+fi
+
+###############################################################################################
+#                         CDR's Teletica Desc_call_in .BILL                                   #
+###############################################################################################
+
+
+# Declaracion de Variables
+count=0
+limit1=$(ls /var/opt/BGw/Server2/TELETICA/tmpDesc2/TT.*.BILL | wc -l)              # Obtengo cantidad de CDR's Teletica Desc_call_in .BILL
+limit2=$(ls /var/opt/BGw/Server2/TELETICA/tmpDesc2/TT.LDUN.*.??????.BILL | wc -l)  # Obtengo cantidad de CDR's LDUN Teletica Desc_call_in .BILL
+#limit=5
+
+########################
+#  Echos para pruebas  #
+########################
+echo ""
+echo "Cantidad de CDR's Desc_call_in: " $limit1
+echo ""
+echo ""
+echo "Cantidad de CDR's LDUN Desc_call_in: " $limit2
+echo ""
+
+#******************************************************************#
+# Muevo archivos TT.LDUN Desc_call_in .BILL Teletica a carpeta FTP #
+#******************************************************************#
+
+echo ""
+echo "Moviendo Archivos LDUN Desc_call_in .BILL  Teletica a salida:" $limit2
+echo ""
+if(($limit2>0))
+then
+for ((count=1; count<=$limit2; count++)) # Lazo de lectura de Archivos LDUN
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server2/TELETICA/tmpDesc2/TT.LDUN.*.??????.BILL | tail -1) # Obtengo path y nombre de archivos Teletica y alamaceno en arreglo
+        mv ${orig_file[count]} /var/opt/BGw/Server2/TELETICA/salidaDesc_call_in                          # Muevo Archivos LDUN a carpeta salida 
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f8`
+        echo ${orig_file[$count]} "  Desc_call_in LDUN"
+done
+fi
+
+if(($limit1>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos Desc_call_in .BILL Teletica a temporal:" $limit1
+echo ""
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server2/TELETICA/tmpDesc2/TT.*.BILL | tail -1)             # Obtengo path  y nombre de archivos Teletica y alamaceno en arreglo
+        mv ${orig_file[count]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in      # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f8`    # Dejo solamente el nombre del archivo 
+        echo ${orig_file[$count]} "  Desc_call_in" 
+done
+
+name=${orig_file[$limit1]}
+
+header=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/${orig_file[1]} | head -1)
+echo ""
+echo "Header: " $header
+trailer=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/${orig_file[$limit1]} | tail -1)
+echo "Trailer: " $trailer
+cant_cdr=0
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        sed -e '/TRA/d' -e '/HDR/d' /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/${orig_file[$count]} > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/tmp  
+        mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/${orig_file[$count]}
+
+done
+
+#cant_cdr=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/TT.* | wc -l)
+
+echo ""
+echo "Cantidad de CDR's a concatenar: " $cant_cdr
+
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/TT.* > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]}
+
+echo ""
+#echo "Archivo concatenado sin header ni trailer: " $name
+#head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/TT.*
+#tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/TT.*
+
+rm /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in/TT.*
+
+touch /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/tmp
+echo "$header" > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/tmp
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]} >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/tmp 
+
+#trailer=$(echo $trailer | cut -d" " -f1)
+#echo ""
+#echo "Contruyendo Trailer:" $trailer   " CDR's: " $cant_cdr "Ericsson EMM"
+echo "$trailer" >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/tmp # $cant_cdr""Ericsson EMM" 
+
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]}
+
+echo "Nuevo Archivo Concatenado: "
+head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]} 
+tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]}
+
+cp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in3/
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/salidaDesc_call_in/
+
+fi
+
+
+
+###############################################################################################
+#                         CDR's Teletica SmsO .BILL                                           #
+###############################################################################################
+
+
+
+#Declaracion de Variables
+count=0
+limit1=$(ls /var/opt/BGw/Server2/TELETICA/tmpSmso2/TT.*.BILL | wc -l)  # Obtengo cantidad de CDR's Teletica SmsO .BILL
+
+########################
+#  Echos para pruebas  #
+########################
+echo ""
+echo "Cantidad de CDR's SmsO: " $limit1
+echo ""
+
+if(($limit1>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos SmsO .BILL Teletica a temporal:" $limit1
+echo ""
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server2/TELETICA/tmpSmso2/TT.*.BILL | tail -1) # Obtengo path  y nombre de archivos Teletica y alamaceno en arreglo
+
+        mv ${orig_file[count]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO  # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f8`                           # Dejo solamente el nombre del archivo
+        echo ${orig_file[$count]} "  SmsO"
+done
+
+name=${orig_file[$limit1]}
+
+header=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/${orig_file[1]} | head -1)
+echo ""
+echo "Header: " $header
+trailer=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/${orig_file[$limit1]} | tail -1)
+echo "Trailer: " $trailer
+cant_cdr=0
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        sed -e '/TRA/d' -e '/HDR/d' /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/${orig_file[$count]} > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/tmp
+        mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/${orig_file[$count]}
+
+done
+
+#cant_cdr=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/TT.* | wc -l)
+
+echo ""
+echo "Cantidad de CDR's a concatenar: " $cant_cdr
+
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/TT.* > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]}
+
+echo ""
+#echo "Archivo concatenado sin header ni trailer: " $name
+#tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/TT.*
+#head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/TT.*
+
+rm /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO/*
+
+touch /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/tmp
+echo "$header" > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/tmp
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]} >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/tmp
+
+#trailer=$(echo $trailer | cut -d" " -f1)
+#echo ""
+#echo "Contruyendo Trailer:" $trailer   " CDR's: " $cant_cdr "Ericsson EMM"
+echo "$trailer" >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/tmp  # $cant_cdr""Ericsson EMM"  
+
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]}
+
+echo "Nuevo Archivo Concatenado: "
+head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]}
+tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]}
+
+cp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO3/
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/salidaSmsO
+
+
+fi
+
+
+###############################################################################################
+#                         CDR's Teletica SmsT .BILL                                           #
+###############################################################################################
+
+
+
+#Declaracion de Variables
+count=0
+limit1=$(ls /var/opt/BGw/Server2/TELETICA/tmpSmst2/TT.*.BILL | wc -l)  # Obtengo cantidad de CDR's Teletica SmsT .BILL
+
+########################
+#  Echos para pruebas  #
+########################
+echo ""
+echo "Cantidad de CDR's SmsT: " $limit1
+echo ""
+
+if(($limit1>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos SmsT .BILL Teletica a temporal:" $limit1
+echo ""
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server2/TELETICA/tmpSmst2/TT.*.BILL | tail -1) # Obtengo path  y nombre de archivos Teletica y alamaceno en arreglo
+
+        mv ${orig_file[count]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT  # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f8`                           # Dejo solamente el nombre del archivo
+        echo ${orig_file[$count]} "  SmsT"
+done
+
+name=${orig_file[$limit1]}
+
+header=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/${orig_file[1]} | head -1)
+echo ""
+echo "Header: " $header
+trailer=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/${orig_file[$limit1]} | tail -1)
+echo "Trailer: " $trailer
+cant_cdr=0
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        sed -e '/TRA/d' -e '/HDR/d' /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/${orig_file[$count]} > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/tmp
+        mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/${orig_file[$count]}
+
+done
+
+#cant_cdr=$(cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/TT.* | wc -l)
+
+echo ""
+echo "Cantidad de CDR's a concatenar: " $cant_cdr
+
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/TT.* > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]}
+
+echo ""
+#echo "Archivo concatenado sin header ni trailer: " $name
+#tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/TT.*
+#head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/TT.*
+
+rm /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT/*
+
+touch /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/tmp
+echo "$header" > /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/tmp
+cat /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]} >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/tmp
+
+#trailer=$(echo $trailer | cut -d" " -f1)
+#echo ""
+#echo "Contruyendo Trailer:" $trailer   " CDR's: " $cant_cdr "Ericsson EMM"
+echo "$trailer" >> /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/tmp # $cant_cdr""Ericsson EMM"
+
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/tmp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]}
+
+echo "Nuevo Archivo Concatenado: "
+head -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]}
+tail -6 /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]}
+
+cp /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT3/
+mv /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT2/${orig_file[$limit1]} /var/opt/BGw/Server2/TELETICA/salidaSmsT
+
+fi
+
+echo ""
+echo "Fin del script: " 
+date

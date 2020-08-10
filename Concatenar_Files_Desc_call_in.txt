@@ -1,0 +1,104 @@
+# Declaracion de Variables
+count=0
+limit1=$(ls /var/opt/BGw/Server4/daniel/Concatenar_File/files/Desc_call_in/TT.*.BILL | wc -l)  # Obtengo cantidad de CDR's Teletica Desc_call_in .BILL
+limit2=$(ls /var/opt/BGw/Server4/daniel/Concatenar_File/files/Desc_call_in/TT.LDUN.*.??????.BILL | wc -l)  # Obtengo cantidad de CDR's LDUN Teletica Desc_call_in .BILL
+#limit=5
+
+########################
+#  Echos para pruebas  #
+########################
+echo ""
+echo "Cantidad de CDR's Desc_call_in: " $limit1
+echo ""
+echo ""
+echo "Cantidad de CDR's LDUN Desc_call_in: " $limit2
+echo ""
+
+#**********************************************************o#
+# Muevo archivos TT.LDUN Desc_call_in .BILL Teletica a carpeta FTP #
+#***********************************************************#
+
+echo ""
+echo "Moviendo Archivos LDUN Desc_call_in .BILL  Teletica a salida:" $limit2
+echo ""
+if(($limit2>0))
+then
+for ((count=1; count<=$limit2; count++)) # Lazo de lectura de Archivos LDUN
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server4/daniel/Concatenar_File/files/Desc_call_in/TT.LDUN.*.??????.BILL | tail -1) # Obtengo path y nombre de archivos Teletica y alamaceno en arreglo
+        mv ${orig_file[count]} /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/salidaDesc_call_in            # Muevo Archivos LDUN a carpeta salida 
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f10`
+        echo ${orig_file[$count]}
+done
+fi
+
+if(($limit1>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos Desc_call_in .BILL Teletica a temporal:" $limit1
+echo ""
+
+
+trailer=$(ls -rh /var/opt/BGw/Server4/daniel/Concatenar_File/files/Desc_call_in/TT.*.BILL | tail -1)
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server4/daniel/Concatenar_File/files/Desc_call_in/TT.*.BILL | tail -1) # Obtengo path  y nombre de archivos Teletica y alamaceno en arreglo
+        mv ${orig_file[count]} /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in                                  # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f10`    # Dejo solamente el nombre del archivo 
+        echo ${orig_file[$count]}
+done
+
+name=${orig_file[$limit1]}
+
+header=$(cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/${orig_file[1]} | head -1)
+echo ""
+echo "Header: " $header
+trailer=$(cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/${orig_file[$limit1]} | tail -1)
+echo "Trailer: " $trailer
+cant_cdr=0
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        sed -e '/TRA/d' -e '/HDR/d' /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/${orig_file[$count]} > /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/tmp  
+        mv /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/tmp /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/${orig_file[$count]}
+
+done
+
+cant_cdr=$(cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/TT.* | wc -l)
+
+echo ""
+echo "Cantidad de CDR's a concatenar: " $cant_cdr
+
+#touch /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/${orig_file[$count]}
+
+echo ""
+echo "Archivo concatenado: " $name
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/TT.*
+
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/TT.* > /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/${orig_file[$limit1]}
+
+rm /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in/*
+
+echo "$header" > /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/tmp
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/${orig_file[$limit1]} >> /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/tmp 
+
+trailer=$(echo $trailer | cut -d" " -f1)
+echo ""
+echo "Contruyendo Trailer:" $trailer   " CDR's: " $cant_cdr "Ericsson EMM"
+echo "$trailer   $cant_cdr""Ericsson EMM"  >> /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/tmp
+
+mv /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/tmp /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/${orig_file[$limit1]}
+
+echo "Nuevo Archivo Concatenado: "
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/${orig_file[$limit1]} 
+
+mv /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpDesc_call_in2/${orig_file[$limit1]} /var/opt/BGw/Server4/daniel/Concatenar_File/salidaDesc_call_in
+
+
+fi

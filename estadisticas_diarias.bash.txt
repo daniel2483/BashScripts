@@ -1,0 +1,150 @@
+#!/bin/bash
+
+############################################################################################
+#       Descripcion: Script utilizado para obtener las estadisticas diarias de archivos    #
+#                    enviados a MZ                                                         # 
+#       Creador: Daniel Rodriguez Sanchez                                                  #
+#       Fecha: 22-09-2011                                                                  #
+#       Ultima Fecha de Actualizacion: 04-10-2011                                          #
+############################################################################################
+
+fecha_ayer=$(cat /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/ayer.txt)
+#fecha_ayer=27/09/11
+
+echo "" > /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo "" >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo "Cargando estadisticas del dia: " $fecha_ayer  >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo "" >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+
+dia=`echo $fecha_ayer | cut -d/ -f1`
+diamod=`echo $fecha_ayer | cut -d/ -f1`
+mes=`echo $fecha_ayer | cut -d/ -f2` 
+mesmod=`echo $fecha_ayer | cut -d/ -f2`
+ano=`echo $fecha_ayer | cut -d/ -f3`
+
+#echo "Dia: " $dia "  Mes: " $mes "  Anno: " $ano       
+
+
+ref=$(cut -b4-4 /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/ayer.txt)
+
+if(($ref<1))
+then
+        mesmod=$(cut -b5-5 /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/ayer.txt)
+fi
+
+#echo "Dia: " $diamod "  Mes: " $mesmod "  Anno: " $ano
+
+
+#######################################################################
+# Conteo Archivos para estadisticas y almacenamiento en log_diario.txt#
+#######################################################################
+echo ""
+echo "Flag1"
+rating=$(ls -lh /var/opt/BGw/Server1/ICE/Rating/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l) 
+echo "Conteo de archivos de voz .BILL /var/opt/BGw/Server1/ICE/Rating/ del dia " $fecha_ayer ": " $rating >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag2"
+CDRrating=$(grep CE /var/opt/BGw/Server1/ICE/Rating/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's en voz .BILL /var/opt/BGw/Server1/ICE/Rating/ del dia " $fecha_ayer ": " $rating >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt 
+echo ""
+echo "Flag3"
+ratingLDUN=$(ls -lh /var/opt/BGw/Server1/ICE/Rating/TT.LDUN.$ano$mes$dia.??????.BILL | wc -l)
+echo "Conteo de archivos de voz LDUN .BILL /var/opt/BGw/Server1/ICE/Rating/ del dia " $fecha_ayer ": " $ratingLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag4"
+CDRratingLDUN=$(grep CE /var/opt/BGw/Server1/ICE/Rating/TT.LDUN.$ano$mes$dia.??????.BILL | wc -l)
+echo "Conteo de CDR's en voz .BILL /var/opt/BGw/Server1/ICE/Rating/ del dia " $fecha_ayer ": " $CDRratingLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt 
+echo ""
+echo "Flag5"
+iceSOLT=$(ls -lh /var/opt/BGw/Server1/ICE/redfija/TT.$ano$mes$dia*.EMSC?R13.SOLT | wc -l)
+echo "Conteo de archivos ICE .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $iceSOLT >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag6"
+CDRiceSOLT=$(cat /var/opt/BGw/Server1/ICE/redfija/TT.$ano$mes$dia*.EMSC?R13.SOLT | wc -l)
+echo "Conteo de CDR's ICE en voz .SOLT /var/opt/BGw/Server1/ICE/Rating/ del dia " $fecha_ayer ": " $CDRiceSOLT >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag7"
+iceSOLTLDUN=$(ls -lh /var/opt/BGw/Server1/ICE/redfija/TT.LDUN.$ano$mes$dia.??????.SOLT | wc -l)
+echo "Conteo de archivos LDUN ICE .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $iceSOLTLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag8"
+CDRiceSOLTLDUN=$(cat /var/opt/BGw/Server1/ICE/redfija/TT.$ano$mes$dia*.EMSC?R13.SOLT | wc -l)
+echo "Conteo de CDRs LDUN ICE .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $CDRiceSOLTLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag9"
+TELETICA=$(ls -lh /var/opt/BGw/Server1/ICE/redfija/TT.$ano$mes$dia*.EMSC?R132.SOLT | wc -l)
+echo "Conteo de archivos TELETICA .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $TELETICA >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag10"
+CDRTELETICA=$(cat /var/opt/BGw/Server1/ICE/redfija/TT.$ano$mes$dia*.EMSC?R132.SOLT | wc -l)
+echo "Conteo de CDRs TELETICA .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $CDRTELETICA >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag11"
+TELETICALDUN=$(ls -lh /var/opt/BGw/Server1/ICE/redfija/TT.LDUN.$ano$mes$dia.??????2.SOLT | wc -l )
+echo "Conteo de archivos LDUN TELETICA .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $TELETICALDUN >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag12"
+CDRTELETICALDUN=$(cat /var/opt/BGw/Server1/ICE/redfija/TT.LDUN.$ano$mes$dia.??????2.SOLT | wc -l )
+echo "Conteo de CDRs LDUN TELETICA .SOLT /var/opt/BGw/Server1/ICE/redfija/ del dia " $fecha_ayer ": " $CDRTELETICALDUN >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag13"
+temp=$(echo "/var/opt/BGw/Server2/ICE/SMS/Kenan/CDR_SMSC1_"$ano"_"$mesmod"_"$dia"*")
+smsc1=$(ls -lh $temp | wc -l)
+echo "Conteo de archivos SMSC1 .BILL /var/opt/BGw/Server2/ICE/SMS/Kenan/ del dia " $fecha_ayer ": " $smsc1 >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag14"
+CDRsmsc1=$(grep SM $temp | wc -l)
+echo "Conteo de CDRs SMSC1 .BILL /var/opt/BGw/Server2/ICE/SMS/Kenan/ del dia " $fecha_ayer ": " $CDRsmsc1 >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag15"
+temp=$(echo "/var/opt/BGw/Server2/ICE/SMS/Kenan/CDR_SMSC2_"$ano"_"$mesmod"_"$dia"*")
+smsc2=$(ls -lh $temp | wc -l)
+echo "Conteo de archivos SMSC2 .BILL /var/opt/BGw/Server2/ICE/SMS/Kenan/ del dia " $fecha_ayer ": " $smsc2 >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag16"
+CDRsmsc2=$(grep SM $temp | wc -l)
+echo "Conteo de CDRs SMSC2 .BILL /var/opt/BGw/Server2/ICE/SMS/Kenan/ del dia " $fecha_ayer ": " $CDRsmsc2 >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag17"
+sgsn=$(ls -lh /var/opt/BGw/Server2/ICE/GPRS/SGSN/Local/Rating/chsLog.*.$ano$mes$dia.rating | wc -l)
+echo "Conteo de archivos SGSN .rating /var/opt/BGw/Server2/ICE/GPRS/SGSN/Local/Rating del dia " $fecha_ayer ": " $sgsn >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag18"
+CDRsgsn=$(grep GP /var/opt/BGw/Server2/ICE/GPRS/SGSN/Local/Rating/chsLog.*.$ano$mes$dia.rating | wc -l)
+echo "Conteo de CDRs SGSN .rating /var/opt/BGw/Server2/ICE/GPRS/SGSN/Local/Rating del dia " $fecha_ayer ": " $CDRsgsn >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag19"
+mmsc=0
+echo "Conteo de archivos MMS .rating /var/opt/BGw/Server2/ICE/MMS/KenanProd/ del dia " $fecha_ayer ": " $mmsc >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag20"
+CDRmmsc=0
+echo "Conteo de CDRs MMS .rating /var/opt/BGw/Server2/ICE/MMS/KenanProd/ del dia " $fecha_ayer ": " $CDRmmsc >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag21"
+total=$(expr $rating + $ratingLDUN + $iceSOLT + $iceSOLTLDUN + $TELETICA + $TELETICALDUN + $smsc1 + $smsc2 + $sgsn)
+echo "Conteo Total: " $total >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag22"
+totalMZ=$(expr $rating + $ratingLDUN + $iceSOLT + $iceSOLTLDUN + $TELETICA + $TELETICALDUN + $smsc1 + $smsc2 + $sgsn)
+echo "Conteo total enviados a MZ: " $totalMZ >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_diario.txt
+echo ""
+echo "Flag23"
+
+#############################################################################
+# Conteo Archivos para estadisticas y almacenamiento en log_estadisticas.txt#
+#############################################################################
+
+#Fecha           Rating         LDUN     Redfija    RedfijaLDUN      Teletica        TelLDUN       SMSC1       SMSC2       LoSGSN    MMSKen    Total   TotalMZ
+echo "$fecha_ayer    $rating       $ratingLDUN    $iceSOLT       $iceSOLTLDUN      $TELETICA       $TELETICALDUN    $smsc1    $smsc2     $sgsn         $mmsc    $total     $totalMZ" >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_estadisticas.txt
+echo ""
+echo "Flag24"
+
+#############################################################################
+# Conteo CDR's para estadisticas y almacenamiento en log_estadisticas.txt   #
+#############################################################################
+
+#Fecha           Rating         LDUN     Redfija    RedfijaLDUN      Teletica        TelLDUN       SMSC1       SMSC2       LoSGSN    MMSKen    Total   TotalMZ
+echo "$fecha_ayer  $CDRrating    $CDRratingLDUN    $CDRiceSOLT     $CDRiceSOLTLDUN    $CDRTELETICA     $CDRTELETICALDUN    $CDRsmsc1    $CDRsmsc2     $CDRsgsn     $CDRmmsc" >> /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/log_estadisticas2.txt
+echo ""
+echo "Flag25"

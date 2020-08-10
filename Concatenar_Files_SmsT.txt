@@ -1,0 +1,88 @@
+# Declaracion de Variables
+count=0
+limit1=$(ls /var/opt/BGw/Server4/daniel/Concatenar_File/files/SmsT/TT.*.BILL | wc -l)  # Obtengo cantidad de CDR's Teletica SmsT .BILL
+
+########################
+#  Echos para pruebas  #
+########################
+echo ""
+echo "Cantidad de CDR's SmsT: " $limit1
+echo ""
+
+if(($limit1>0))
+then
+
+#***********************************#
+# Muevo archivos a carpeta temporal #
+#***********************************#
+
+echo ""
+echo "Moviendo Archivos SmsT .BILL Teletica a temporal:" $limit1
+echo ""
+
+
+trailer=$(ls -rh /var/opt/BGw/Server4/daniel/Concatenar_File/files/SmsT/TT.*.BILL | tail -1)
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        orig_file[count]=$(ls -rh /var/opt/BGw/Server4/daniel/Concatenar_File/files/SmsT/TT.*.BILL | tail -1) # Obtengo path  y nombre de archivos Teletica y alamaceno en arreglo
+
+        mv ${orig_file[count]} /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT                                  # Muevo Archivos a carpeta temporal
+        orig_file[count]=`echo ${orig_file[$count]} | cut -d/ -f10`    # Dejo solamente el nombre del archivo
+        echo ${orig_file[$count]}
+done
+
+name=${orig_file[$limit1]}
+
+header=$(cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/${orig_file[1]} | head -1)
+echo ""
+echo "Header: " $header
+trailer=$(cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/${orig_file[$limit1]} | tail -1)
+echo "Trailer: " $trailer
+cant_cdr=0
+
+for ((count=1; count<=$limit1; count++)) # Lazo de lectura de Archivos
+do
+        sed -e '/TRA/d' -e '/HDR/d' /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/${orig_file[$count]} > /var/opt/BGw/ServerGroup4/Server4/daniel/Conca
+tenar_File/script3/tmpSmsT/tmp
+        mv /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/tmp /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/${orig_file[$cou
+nt]}
+
+done
+
+cant_cdr=$(cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/TT.* | wc -l)
+
+echo ""
+echo "Cantidad de CDR's a concatenar: " $cant_cdr
+
+#touch /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/${orig_file[$count]}
+
+echo ""
+echo "Archivo concatenado: " $name
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/TT.*
+
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/TT.* > /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/${orig_file[$limit1
+]}
+
+rm /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT/*
+
+echo "$header" > /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/tmp
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/${orig_file[$limit1]} >> /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/
+tmp
+
+trailer=$(echo $trailer | cut -d" " -f1)
+echo ""
+echo "Contruyendo Trailer:" $trailer   " CDR's: " $cant_cdr "Ericsson EMM"
+echo "$trailer   $cant_cdr""Ericsson EMM"  >> /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/tmp
+
+
+mv /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/tmp /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/${orig_file[$limit1]}
+
+echo "Nuevo Archivo Concatenado: "ls
+
+cat /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/${orig_file[$limit1]}
+
+mv /var/opt/BGw/ServerGroup4/Server4/daniel/Concatenar_File/script3/tmpSmsT2/${orig_file[$limit1]} /var/opt/BGw/Server4/daniel/Concatenar_File/salidaSmsT
+
+
+fi

@@ -1,0 +1,141 @@
+#!/bin/sh
+
+# ealgrah, for any clarification needed.
+
+# the script was developed by GSDC Italy for Etisalat-KSA EMM Geo-Red.
+
+# sintax check
+
+ 
+
+if [ $# -ne 8 ]
+
+then
+
+                echo "Sintax    : $0 <file1> <file2> <'separator'> <file1: join field> <file2: join field>  <file1: output field>  <file2: output field>  <la
+
+bel lines to skip>"
+
+                echo "example   : ./my_join.sh id_ne1.txt id_ne2.txt ';' 1 2 2 3 1"
+
+                exit 1
+
+fi
+
+ 
+
+# input
+
+ 
+
+FILE1=$1
+
+FILE2=$2
+
+SEP=$3
+
+J1=$4
+
+J2=$5
+
+O1=$6
+
+O2=$7
+
+LABEL_LINES=$8
+
+ 
+
+# vars
+
+ 
+
+NOLABEL_EXT="nolabel"
+
+SORT_EXT="sorted"
+
+JOIN_EXT="joined"
+
+NOSPACE_EXT="nospace"
+
+ 
+
+NLFILE1=${FILE1}.${NOLABEL_EXT}
+
+NLFILE2=${FILE2}.${NOLABEL_EXT}
+
+SFILE1=${NLFILE1}.${SORT_EXT}
+
+SFILE2=${NLFILE2}.${SORT_EXT}
+
+JFILE=${FILE1}_${FILE2}.${JOIN_EXT}
+
+NSFILE=${JFILE}.${NOSPACE_EXT}
+
+ 
+
+# main
+
+ 
+
+NLINE1=`cat ${FILE1} | wc -l`
+
+NLINE2=`cat ${FILE2} | wc -l`
+
+ 
+
+NLINE1=`expr ${NLINE1} - ${LABEL_LINES}`
+
+NLINE2=`expr ${NLINE2} - ${LABEL_LINES}`
+
+ 
+
+cat ${FILE1} | tail -${NLINE1} > ${NLFILE1}
+
+cat ${FILE2} | tail -${NLINE2} > ${NLFILE2}
+
+ 
+
+sort -t "${SEP}" -k${J1} ${NLFILE1} > ${SFILE1}
+
+sort -t "${SEP}" -k${J2} ${NLFILE2} > ${SFILE2}
+
+ 
+
+join -t${SEP} -1 ${J1} -2 ${J2} -a 1 -a 2 -o 0,1.${O1},2.${O2}  ${SFILE1} ${SFILE2} > ${JFILE}
+
+ 
+
+cat ${JFILE} | tr ' ' '_' >  ${NSFILE}
+
+ 
+
+for line in `cat ${NSFILE}`
+
+do
+
+        id1=`echo ${line} | cut -d';' -f 2`
+
+        id2=`echo ${line} | cut -d';' -f 3`
+
+echo "from ${id1} to ${id2}"
+
+        mv /var/opt/BGw/Server7/CXC1724232_R7D/storage/config/filenamegenerator/${id1}.fng /var/opt/BGw/Server7/CXC1724232_R7D/storage/config/filenamegenerat
+
+or/${id2}.fng
+
+done
+
+ 
+
+\rm ${NLFILE1}
+
+\rm ${NLFILE2}
+
+\rm ${SFILE1}
+
+\rm ${SFILE2}
+
+\rm ${JFILE}
+
+\rm ${NSFILE}

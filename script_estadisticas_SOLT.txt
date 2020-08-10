@@ -1,0 +1,163 @@
+#!/bin/bash
+
+############################################################################################
+#       Descripcion: Script utilizado para obtener las estadisticas diarias de archivos    #
+#                    enviados a SOLT                                                       #
+#       Creador: Daniel Rodriguez Sanchez                                                  #
+#       Fecha: 22-09-2011                                                                  #
+#       Ultima Fecha de Actualizacion: 20-10-2011                                          #
+############################################################################################
+
+
+fecha_ayer=$(cat /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/ayer.txt)
+#fecha_ayer=27/09/11
+
+echo "" >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo "" >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo "Cargando estadisticas del dia: " $fecha_ayer  >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo "" >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+
+dia=`echo $fecha_ayer | cut -d/ -f1`
+mes=`echo $fecha_ayer | cut -d/ -f2`
+ano=`echo $fecha_ayer | cut -d/ -f3`
+
+echo "Dia: " $dia "  Mes: " $mes "  Anno: " $ano
+
+
+
+#######################################################################
+# Conteo Archivos para estadisticas y almacenamiento en log_diario.txt#
+#######################################################################
+
+Desc_call_in=$(ls -lh /var/opt/BGw/Server2/TELETICA/Desc_call_in/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de voz .BILL /var/opt/BGw/Server2/TELETICA/Desc_call_in/ del dia " $fecha_ayer ": " $Desc_call_in >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera1"
+Desc_call_inLDUN=$(ls -lh /var/opt/BGw/Server2/TELETICA/Desc_call_in/TT.LDUN.$ano$mes$dia.??????.BILL | wc -l)
+echo "Conteo de archivos de voz LDUN .BILL /var/opt/BGw/Server2/TELETICA/Desc_call_in/ del dia " $fecha_ayer ": " $Desc_call_inLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera2"
+CDRDesc_call_in=$(grep D /var/opt/BGw/Server2/TELETICA/Desc_call_in/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+CDRDesc_call_in=$(expr  $CDRDesc_call_in - $Desc_call_in)
+echo "Conteo de CDR's de voz .BILL /var/opt/BGw/Server2/TELETICA/Desc_call_in/ del dia " $fecha_ayer ": " $CDRDesc_call_in >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera3"
+CDRDesc_call_inLDUN=$(grep D /var/opt/BGw/Server2/TELETICA/Desc_call_in/TT.LDUN.$ano$mes$dia.??????.BILL | wc -l)
+CDRDesc_call_inLDUN=$(expr  $CDRDesc_call_inLDUN - $Desc_call_inLDUN)
+echo "Conteo de CDR's de voz LDUN .BILL /var/opt/BGw/Server2/TELETICA/Desc_call_in/ del dia " $fecha_ayer ": " $CDRDesc_call_inLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+
+echo ""
+echo "Bandera4"
+Gitel=$(ls -lh /var/opt/BGw/Server2/TELETICA/Gitel/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de voz .BILL /var/opt/BGw/Server2/TELETICA/Gitel/ del dia " $fecha_ayer ": " $Gitel >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera5"
+GitelLDUN=$(ls -lh /var/opt/BGw/Server2/TELETICA/Gitel/TT.LDUN.$ano$mes$dia.??????.BILL | wc -l)
+echo "Conteo de archivos de voz LDUN .BILL /var/opt/BGw/Server2/TELETICA/Gitel/ del dia " $fecha_ayer ": " $GitelLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera6"
+CDRGitel=$(grep CE /var/opt/BGw/Server2/TELETICA/Gitel/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's de voz .BILL /var/opt/BGw/Server2/TELETICA/Gitel/ del dia " $fecha_ayer ": " $CDRGitel >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera7"
+CDRGitelLDUN=$(grep CE /var/opt/BGw/Server2/TELETICA/Gitel/TT.LDUN.$ano$mes$dia.??????.BILL | wc -l)
+echo "Conteo de CDR's de voz LDUN .BILL /var/opt/BGw/Server2/TELETICA/Gitel/ del dia " $fecha_ayer ": " $CDRGitelLDUN >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera8"
+
+SmsO=$(ls -lh /var/opt/BGw/Server2/TELETICA/SmsO/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de Sms .BILL /var/opt/BGw/Server2/TELETICA/SmsO/ del dia " $fecha_ayer ": " $SmsO >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera9"
+CDRSmsO=$(grep SM /var/opt/BGw/Server2/TELETICA/SmsO/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's de Sms .BILL /var/opt/BGw/Server2/TELETICA/SmsO/ del dia " $fecha_ayer ": " $CDRSmsO >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+
+echo ""
+echo "Bandera10"
+SmsT=$(ls -lh /var/opt/BGw/Server2/TELETICA/SmsT/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de Sms .BILL /var/opt/BGw/Server2/TELETICA/SmsT/ del dia " $fecha_ayer ": " $SmsT >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera11"
+CDRSmsT=$(grep SM /var/opt/BGw/Server2/TELETICA/SmsT/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's de Sms .BILL /var/opt/BGw/Server2/TELETICA/SmsT/ del dia " $fecha_ayer ": " $CDRSmsT >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera12"
+
+
+
+
+totalArchivo=$(expr  $Desc_call_in + $Desc_call_inLDUN + $Gitel + $GitelLDUN + $SmsO + $SmsT)
+echo "Conteo Total de archivos enviados a SOLT: " $totalArchivo >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera13"
+totalCDR=$(expr $CDRDesc_call_in + $CDRDesc_call_inLDUN + $CDRGitel + $CDRGitelLDUN + $CDRSmsO + $CDRSmsT)
+echo "Conteo total de CDR's enviados a SOLT: " $totalCDR >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Bandera14"
+
+#############################################################################
+# Conteo Archivos para estadisticas y almacenamiento en log_estadisticas.txt#
+#############################################################################
+
+
+#Fecha        Des_call  Desc_callCDR    DC_LDUN    DC_LCDR    Gitel    GitelCDR     GitelL     GitelLCDR    SmsO     SmsOCDRs         SmsT  SmsTCDRs   Totalfiles  TotalCDRs
+echo "$fecha_ayer    $Desc_call_in      $CDRDesc_call_in   $Desc_call_inLDUN          $CDRDesc_call_inLDUN   $Gitel   $CDRGitel   $GitelLDUN   $CDRGitelLDUN    $SmsO     $CDRSmsO     $SmsT  $CDRSmsT    $totalArchivo      $totalCDR" >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_estadisticas.txt
+
+echo ""
+echo "Flag1"
+
+#############################################################################
+# Conteo Archivos y CDR's concatenados                                      #
+#############################################################################
+echo "" >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo "Conteo de Archivos y CDR's concatenados: " >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag2"
+Desc_call_in=$(ls -lh /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de voz Concatenados .BILL ../TELETICA/script_concatenateBill/tmpDesc_call_in3/ del dia " $fecha_ayer ": " $Desc_call_in >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag3"
+CDRDesc_call_in=$(grep D /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpDesc_call_in3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+CDRDesc_call_in=$(expr  $CDRDesc_call_in - $Desc_call_in)
+echo "Conteo de CDR's de voz .BILL ../TELETICA/script_concatenateBill/tmpDesc_call_in3/ del dia " $fecha_ayer ": " $CDRDesc_call_in >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag4"
+Gitel=$(ls -lh /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de voz .BILL ../TELETICA/script_concatenateBill/tmpGitel3/ del dia " $fecha_ayer ": " $Gitel >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag5"
+CDRGitel=$(grep CE /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpGitel3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's de voz .BILL ../TELETICA/script_concatenateBill/tmpGitel3/ del dia " $fecha_ayer ": " $CDRGitel >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag6"
+SmsO=$(ls -lh /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de Sms .BILL ../TELETICA/script_concatenateBill/tmpSmsO3/ del dia " $fecha_ayer ": " $SmsO >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag7"
+CDRSmsO=$(grep SM /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsO3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's de Sms .BILL ../TELETICA/script_concatenateBill/tmpSmsO3/ del dia " $fecha_ayer ": " $CDRSmsO >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag8"
+SmsT=$(ls -lh /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de archivos de Sms .BILL ../TELETICA/script_concatenateBill/tmpSmsT3/ del dia " $fecha_ayer ": " $SmsT >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag9"
+CDRSmsT=$(grep SM /var/opt/BGw/Server2/TELETICA/script_concatenateBill/tmpSmsT3/TT.$ano$mes$dia*.EMSC?R13.BILL | wc -l)
+echo "Conteo de CDR's de Sms .BILL ../TELETICA/script_concatenateBill/tmpSmsT3/ del dia " $fecha_ayer ": " $CDRSmsT >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+
+echo ""
+echo "Flag10"
+
+totalArchivo=$(expr  $Desc_call_in + $Desc_call_inLDUN + $Gitel + $GitelLDUN + $SmsO + $SmsT)
+echo "Conteo Total de archivos enviados a SOLT: " $totalArchivo >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+echo ""
+echo "Flag11"
+totalCDR=$(expr $CDRDesc_call_in + $CDRDesc_call_inLDUN + $CDRGitel + $CDRGitelLDUN + $CDRSmsO + $CDRSmsT)
+echo "Conteo total de CDR's enviados a SOLT: " $totalCDR >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_diario.txt
+
+echo ""
+echo "Flag12"
+#Fecha        Des_call  Desc_callCDR    DC_LDUN    DC_LCDR    Gitel    GitelCDR     GitelL     GitelLCDR    SmsO     SmsOCDRs         SmsT  SmsTCDRs   Totalfiles  TotalCDRs
+echo "$fecha_ayer    $Desc_call_in      $CDRDesc_call_in   $Desc_call_inLDUN          $CDRDesc_call_inLDUN   $Gitel   $CDRGitel   $GitelLDUN   $CDRGitelLDUN    $SmsO     $CDRSmsO    $SmsT  $CDRSmsT    $totalArchivo      $totalCDR" >> /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/log_estadisticas2.txt
+echo ""
+echo "Flag13"

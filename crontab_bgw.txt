@@ -1,0 +1,13 @@
+# Script creado para la concatenacion de archivos TELETICA
+3,18,33,48 * * * * /var/opt/BGw/Server2/TELETICA/script_concatenate/concatenate.bash > /home/bgw/log_concatenar_TELETICA.log 2>&1
+
+0,5,10,15,20,25,30,35,40,45,50 * * * * /var/opt/BGw/Server2/TELETICA/script_concatenateBill/concatenateBILL.bash > /home/bgw/concatenar_TELETICA.BILL.log 2>&1 
+
+# Script para obtener fecha a las 23:59
+59 23 * * * /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/dia_ayer.bash > /home/bgw/estadisticas.log 2>&1
+
+# Script para estadisticas diarias 
+# Estadisticas ICE
+50 1 * * * /var/opt/BGw/Server4/daniel/estadisticas_MZ/script/estadisticas_diarias.bash >> /home/bgw/estadisticas.log 2>&1
+# Estadisticas TELETICA
+50 2 * * * /var/opt/BGw/Server4/daniel/estadisticas_SOLT/script/estadisticas_diariasSOLT.bash > /home/bgw/estadisticasSOLT.log 2>&1

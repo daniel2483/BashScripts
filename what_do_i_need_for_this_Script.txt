@@ -1,0 +1,51 @@
+ls  ../files/ | tail -1  > muestra
+
+
+Split
+
+Use # and % modifiers to ${}. I'll do my example on colon instead of space:
+
+    $ x=a:b:c
+    $ echo ${x%:*}
+    a:b
+    $ echo ${x#*:}
+    b:c
+
+
+Rm last character Ksh
+
+If you're using ksh, you can strip off the last character like this:
+x=${x%?}
+
+Remove % from 98% bash
+
+var="98%"
+var=$(echo ${var%\%})
+
+
+
+- Para detectar si un file esta vacio
+file=/etc/passwd
+if [ ! -s $file ]; then
+    echo "$file is empty"
+else
+    echo "$file has content"
+fi
+
+file=/etc/passwd
+[ -s $file ] && echo "$file has content" || echo "$file is empty"
+
+
+
+	
+
+- Para detectar si una variable esta vacia
+This will return true if a variable is unset.
+if [ -z "$VAR" ];
+
+Does that include if a variable IS SET to a value of "" ?
+Yes it does... "-z" tests for a zero-length string. 
+
+
+
+
