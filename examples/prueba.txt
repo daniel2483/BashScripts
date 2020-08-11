@@ -1,0 +1,44 @@
+spawn ssh jramos@10.196.36.228
+Cisco Systems ASR5000 Intelligent Mobile Gateway
+jramos@10.196.36.228's password: 
+Last login: Sat Aug 11 15:14:26 -0600 2012 on pts/1 from 10.196.2.251.
+Cisco Systems ASR5000
+Last Successful Login: Saturday August 11 15:14:26 CST 2012
+[local]SCDESCRMPN1C1EZA1# context gi
+Saturday August 11 15:19:49 CST 2012
+[gi]SCDESCRMPN1C1EZA1# traceroute 4.2.2.2
+Saturday August 11 15:19:59 CST 2012
+exit
+
+traceroute to 4.2.2.2 (4.2.2.2), 30 hops max, 40 byte packets
+ 1  10.196.31.105 (10.196.31.105)  1.000 ms  1.000 ms  1.000 ms
+ 2  186.26.112.11 (186.26.112.11)  10.000 ms  17.000 ms  7.000 ms
+ 3  10.192.4.106 (10.192.4.106)  10.000 ms  9.000 ms  9.000 ms
+ 4  63.245.90.9 (63.245.90.9)  48.000 ms  48.000 ms  48.000 ms
+ 5  63.245.5.67 (63.245.5.67)  47.999 ms  48.000 ms  48.000 ms
+ 6  63.245.5.107 (63.245.5.107)  50.000 ms  50.000 ms  50.000 ms
+ 7  216.156.104.57 (216.156.104.57)  51.000 ms  49.999 ms  51.000 ms
+ 8  207.88.13.174 (207.88.13.174)  93.000 ms  93.000 ms  83.999 ms
+ 9  *spawn ssh jramos@10.196.36.228
+Cisco Systems ASR5000 Intelligent Mobile Gateway
+jramos@10.196.36.228's password: 
+Last login: Sat Aug 11 15:19:39 -0600 2012 on pts/1 from 10.199.10.138.
+Cisco Systems ASR5000
+Last Successful Login: Saturday August 11 15:19:39 CST 2012
+[local]SCDESCRMPN1C1EZA1# context gi
+Saturday August 11 15:22:07 CST 2012
+[gi]SCDESCRMPN1C1EZA1# traceroute 4.2.2.2
+Saturday August 11 15:22:17 CST 2012
+exit
+
+traceroute to 4.2.2.2 (4.2.2.2), 30 hops max, 40 byte packets
+ 1  10.196.31.105 (10.196.31.105)  1.000 ms  1.000 ms  0.000 ms
+ 2  186.26.112.11 (186.26.112.11)  1.000 ms  1.000 ms  2.000 ms
+ 3  10.192.4.106 (10.192.4.106)  10.000 ms  9.000 ms  9.000 ms
+ 4  63.245.90.9 (63.245.90.9)  49.000 ms  48.000 ms *
+ 5  63.245.5.67 (63.245.5.67)  49.000 ms  58.000 ms  74.999 ms
+ 6  63.245.5.107 (63.245.5.107)  55.000 ms  50.000 ms  50.999 ms
+ 7  216.156.104.57 (216.156.104.57)  50.000 ms  50.000 ms  112.999 ms
+ 8  207.88.13.174 (207.88.13.174)  99.999 ms  84.000 ms  82.999 ms
+ 9  207.88.14.241 (207.88.14.241)  82.000 ms  81.999 ms  81.000 ms
+10  4.68.127.149 (4.68.127.149)  85.999 ms  137.000 ms  86.999 ms

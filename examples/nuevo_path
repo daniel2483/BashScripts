@@ -1,0 +1,2 @@
+/eniq/sybase_iq/IQ-15_2/bin64/dbisql -c "UID=dc;PWD=dc" -host localhost -port 2640 -nogui
+
