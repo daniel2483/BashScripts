@@ -1,0 +1,10 @@
+
+
+Creacion de usuarios en TT2 y TT1
+
+sudo useradd -c "Daniel Rodriguez" -d /home/drodriguez -s /bin/bash -p Jdrs2483 drodriguez
+
+sudo useradd -c "Site Handler" -d /home/sitehandler -s /bin/bash -p SiteAdm123 sitehandler
+
+sudo useradd -c "Felix Castro" -d /home/fecast -s /bin/bash -p castro fecast
+
